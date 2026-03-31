@@ -42,27 +42,19 @@ runs:
         version: "${{ env.NFT_VER }}"
         install-pdiff: true
 
-    - name: Set up apptainer
-      if: contains(inputs.profile, 'singularity')
-      shell: bash
-      run: |
-        sudo apt update
-        sudo apt install -y software-properties-common
-        sudo add-apt-repository -y ppa:apptainer/ppa
-        sudo apt update
-        sudo apt install -y apptainer apptainer-suid
-        mkdir -p $NXF_SINGULARITY_CACHEDIR
-        mkdir -p $NXF_SINGULARITY_LIBRARYDIR
+     - name: Set up apptainer
+       if: contains(inputs.profile, 'singularity')
+       shell: bash
+       run: |
+         sudo apt update
+         sudo apt install -y software-properties-common
+         sudo add-apt-repository -y ppa:apptainer/ppa
+         sudo apt update
+         sudo apt install -y apptainer apptainer-suid
+         mkdir -p $NXF_SINGULARITY_CACHEDIR
+         mkdir -p $NXF_SINGULARITY_LIBRARYDIR
 
-    - name: Set up Conda
-      if: ${{contains(inputs.profile, 'conda')}}
-      uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3
-      with:
-        auto-update-conda: true
-        conda-solver: libmamba
-        conda-remove-defaults: true
-
-    # Set up secrets
+     # Set up secrets
     - name: Set up Nextflow secrets
       if: env.SENTIEON_ENCRYPTION_KEY != '' && env.SENTIEON_LICENSE_MESSAGE != ''
       shell: bash
@@ -70,9 +62,7 @@ runs:
         python -m pip install cryptography
         nextflow secrets set SENTIEON_AUTH_DATA $(python3 modules/nf-core/sentieon/license_message.py encrypt --key "$SENTIEON_ENCRYPTION_KEY" --message "$SENTIEON_LICENSE_MESSAGE")
 
-      # TODO Skip failing conda tests and document their failures
-      # https://github.com/nf-core/modules/issues/7017
-    - name: Run nf-test
+     - name: Run nf-test
       id: run-nf-test
       shell: bash
       env:

@@ -2,7 +2,6 @@ process EXAMPLEMODULE {
     tag "$meta.id"
     label 'process_medium'
 
-    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/fastqc:0.12.1--hdfd78af_0' :
         'biocontainers/fastqc:0.12.1--hdfd78af_0' }"
@@ -34,6 +33,7 @@ process EXAMPLEMODULE {
     def fastqc_memory = memory_in_mb > 10000 ? 10000 : (memory_in_mb < 100 ? 100 : memory_in_mb)
 
     """
+    # small change
     printf "%s %s\\n" $rename_to | while read old_name new_name; do
         [ -f "\${new_name}" ] || ln -s \$old_name \$new_name
     done
