@@ -86,12 +86,12 @@ We use a helper command in the `nf-core/tools` package that uses the GitHub API 
 5. Check that a locally installed gianglabs module is up-to-date compared to the one hosted in this repo:
 
    ```bash
-   # activate pixi 
+   # activate pixi
    pixi shell
-   
+
    # lint local modules before pushing to Github
    nf-core modules lint --dir modules/gianglabs examplemodule
-   
+
    # lint the module remotely
    nf-core modules --git-remote https://github.com/gianglabs/nf-modules.git lint examplemodule
    ```

@@ -11,3 +11,4 @@ python = "3.11.*"
 
 [pypi-dependencies]
 nf-core = ">=3.5.2, <4"
+pre-commit = ">=3.0.0"
