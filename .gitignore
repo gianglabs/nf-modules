@@ -16,3 +16,6 @@ tests/data/
 work/
 .github/CODEOWNERS-tmp
 modules/nf-core
+# pixi environments
+.pixi/*
+!.pixi/config.toml

@@ -11,14 +11,16 @@ An nf-core modules repository hosting Nextflow DSL2 modules for the gianglabs or
 
 ## Table of contents
 
-- [Modules](#modules)
-- [Sub-workflows](#sub-workflows)
-- [Cross-organisation sub-workflows](#cross-organisation-sub-workflows)
-  - [Writing cross-organisation sub-workflows](#writing-cross-organisation-sub-workflows)
-  - [Testing cross-organisation sub-workflows](#testing-cross-organisation-sub-workflows)
-  - [Using cross-organisation sub-workflows in pipelines](#using-cross-organisation-sub-workflows-in-pipelines)
-- [Citation](#citation)
-- [Template](#template)
+- [gianglabs/nf-modules](#gianglabsnf-modules)
+  - [Table of contents](#table-of-contents)
+  - [Modules](#modules)
+  - [Sub-workflows](#sub-workflows)
+  - [Cross-organisation sub-workflows](#cross-organisation-sub-workflows)
+    - [Writing cross-organisation sub-workflows](#writing-cross-organisation-sub-workflows)
+    - [Testing cross-organisation sub-workflows](#testing-cross-organisation-sub-workflows)
+    - [Using cross-organisation sub-workflows in pipelines](#using-cross-organisation-sub-workflows-in-pipelines)
+  - [Citation](#citation)
+  - [Template](#template)
 
 ## Modules
 
@@ -84,6 +86,13 @@ We use a helper command in the `nf-core/tools` package that uses the GitHub API 
 5. Check that a locally installed gianglabs module is up-to-date compared to the one hosted in this repo:
 
    ```bash
+   # activate pixi 
+   pixi shell
+   
+   # lint local modules before pushing to Github
+   nf-core modules lint --dir modules/gianglabs examplemodule
+   
+   # lint the module remotely
    nf-core modules --git-remote https://github.com/gianglabs/nf-modules.git lint examplemodule
    ```
 
