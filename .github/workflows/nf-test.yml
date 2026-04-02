@@ -1,8 +1,5 @@
 name: Run nf-test
 on:
-  push:
-    paths-ignore:
-      - "**/meta.yml"
   pull_request:
     branches: [main]
     paths-ignore:
