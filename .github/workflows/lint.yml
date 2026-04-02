@@ -5,10 +5,10 @@ on:
       # https://docs.renovatebot.com/key-concepts/automerge/#branch-vs-pr-automerging
       - "renovate/**" # branches Renovate creates
   pull_request:
-    branches: [main]
+    branches: [master]
   merge_group:
     types: [checks_requested]
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
     inputs:
       runners:
@@ -75,9 +75,9 @@ jobs:
         with:
           filters: |
             modules:
-              - added|modified: 'modules/gianglabs/**'
+              - added|modified: 'modules/nf-core/**'
             subworkflows:
-              - added|modified: 'subworkflows/gianglabs/**'
+              - added|modified: 'subworkflows/nf-core/**'
           token: ""
           list-files: "json"
 
@@ -89,7 +89,7 @@ jobs:
             return [...new Set(${{ steps.filter.outputs.modules_files }}
               .filter(x => x.endsWith('main.nf') || x.endsWith('.nf.test.snap'))
               .map(path => path
-                .replace('modules/gianglabs/', '')
+                .replace('modules/nf-core/', '')
                 .replace(/\/(main\.nf|tests\/.*)$/, '')
               )
             )];
@@ -101,7 +101,7 @@ jobs:
             return [...new Set(${{ steps.filter.outputs.subworkflows_files }}
               .filter(x => x.endsWith('main.nf') || x.endsWith('.nf.test.snap'))
               .map(path => path
-                .replace('subworkflows/gianglabs/', '')
+                .replace('subworkflows/nf-core/', '')
                 .replace(/\/(main\.nf|tests\/.*)$/, '')
               )
             )];
@@ -159,7 +159,7 @@ jobs:
         run: python -m pip install --upgrade --force-reinstall git+https://github.com/nf-core/tools.git@dev
 
       - name: Lint module ${{ matrix.module }}
-        run: nf-core modules lint --dir modules/gianglabs ${{ matrix.module }}
+        run: nf-core modules lint ${{ matrix.module }}
 
   nf-core-lint-subworkflows:
     runs-on:
@@ -191,7 +191,7 @@ jobs:
         run: python -m pip install --upgrade --force-reinstall git+https://github.com/nf-core/tools.git@dev
 
       - name: Lint subworkflow ${{ matrix.subworkflow }}
-        run: nf-core subworkflows lint --dir subworkflows/gianglabs ${{ matrix.subworkflow }}
+        run: nf-core subworkflows lint ${{ matrix.subworkflow }}
 
   confirm-pass-lint:
     runs-on:

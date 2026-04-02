@@ -1,4 +1,4 @@
-name: Run nf-test
+name: Run GPU nf-tests
 on:
   push:
     branches:
@@ -13,6 +13,8 @@ on:
   merge_group:
     types: [checks_requested]
     branches: [master]
+    paths-ignore:
+      - "**/meta.yml"
   workflow_dispatch:
 
 # Cancel if a newer run is started
@@ -27,21 +29,21 @@ env:
   NXF_ANSI_LOG: false
   NXF_SINGULARITY_CACHEDIR: ${{ github.workspace }}/.singularity
   NXF_SINGULARITY_LIBRARYDIR: ${{ github.workspace }}/.singularity
-  # renovate: datasource=github-releases depName=nextflow/nextflow versioning=semver
-  NXF_VER: "25.10.2"
+  # renovate: datasource=github-releases depName=nextflow-io/nextflow versioning=semver
+  NXF_VER: "25.10.4"
 
 jobs:
   nf-test-changes:
     name: nf-test-changes
     runs-on:
-      - runs-on=${{ github.run_id }}-nf-test-changes
+      - runs-on=${{ github.run_id }}-nf-test-changes-gpu
       - runner=4cpu-linux-x64
       - image=ubuntu22-full-x64
     outputs:
       # Expose detected tags as 'modules' and 'workflows' output variables
       paths: ${{ steps.list.outputs.components }}
-      modules: ${{ steps.components.outputs.modules }}
-      subworkflows: ${{ steps.components.outputs.subworkflows}}
+      modules: ${{ steps.outputs.outputs.modules }}
+      subworkflows: ${{ steps.outputs.outputs.subworkflows}}
       shard: ${{ steps.set-shards.outputs.shard }}
       total_shards: ${{ steps.set-shards.outputs.total_shards }}
     steps:
@@ -62,10 +64,10 @@ jobs:
           head: ${{ github.sha }}
           base: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || 'origin/master' }}
           n_parents: 0
-          exclude_tags: "gpu"
+          tags: "gpu,gpu_highmem"
 
       - name: Separate modules and subworkflows
-        id: components
+        id: outputs
         run: |
           echo modules=$(echo '${{ steps.list.outputs.components }}' | jq -c '. | map(select(contains("modules"))) | map(gsub("modules/nf-core/"; ""))') >> $GITHUB_OUTPUT
           echo subworkflows=$(echo '${{ steps.list.outputs.components }}' | jq '. | map(select(contains("subworkflows"))) | map(gsub("subworkflows/nf-core/"; ""))') >> $GITHUB_OUTPUT
@@ -77,88 +79,44 @@ jobs:
         env:
           NFT_VER: ${{ env.NFT_VER }}
         with:
-          max_shards: 16
-          paths: "${{ join(fromJson(steps.list.outputs.components ), ' ') }}"
-
+          max_shards: 2
+          paths: "${{ join(fromJson(steps.list.outputs.components), ' ') }}"
+          tags: "gpu"
       - name: debug
         run: |
           echo ${{ steps.list.outputs.components }}
-          echo ${{ steps.components.outputs.modules }}
-          echo ${{ steps.components.outputs.subworkflows }}
+          echo ${{ steps.outputs.outputs.modules }}
+          echo ${{ steps.outputs.outputs.subworkflows }}
           echo ${{ steps.set-shards.outputs.shard }}
           echo ${{ steps.set-shards.outputs.total_shards }}
 
-  nf-test:
-    runs-on:
-      - runs-on=${{ github.run_id }}
-      - runner=4cpu-linux-${{ matrix.arch }}
-      - image=ubuntu24-full-${{ matrix.arch }}
-    name: "${{ matrix.arch }} | ${{ matrix.profile }} | ${{ matrix.shard }}"
+  nf-test-gpu:
+    runs-on: "runs-on=${{ github.run_id }}/family=${{ matrix.runner }}/image=ubuntu24-gpu-x64"
+    name: "GPU Test | ${{ matrix.runner }} | ${{ matrix.profile }} | ${{ matrix.shard }}"
     needs: [nf-test-changes]
     if: ${{ needs.nf-test-changes.outputs.total_shards != '0' }}
     strategy:
       fail-fast: false
       matrix:
         shard: ${{ fromJson(needs.nf-test-changes.outputs.shard) }}
-        profile: [conda, docker, singularity]
-        arch:
-          - x64
-          # FIXME
-          # - arm64
+        profile: [docker, singularity]
+        include:
+          - runner: g4dn.xlarge
+            tag: gpu
+          - runner: g4dn.2xlarge
+            tag: gpu_highmem
     env:
       NXF_ANSI_LOG: false
       TOTAL_SHARDS: ${{ needs.nf-test-changes.outputs.total_shards }}
-    outputs:
-      filtered_paths: ${{ steps.filter.outputs.filtered_paths }}
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
-
-      - name: Filter paths
-        id: filter
+      - name: test cuda
         run: |
-          PATHS='${{ needs.nf-test-changes.outputs.paths }}'
-          FILTERED=$(jq -n -c \
-            --arg profile "${{ matrix.profile }}" \
-            --argjson input_paths "$PATHS" \
-            '
-            def get_skip_list: inputs | .[$profile] // [];
-
-            # Get skip list and filter
-            get_skip_list as $skip_patterns |
-
-            # Debug output
-            ($skip_patterns | "Skip patterns: " + (map("  - " + .) | join(","))) |
-            debug |
-
-            # Do the actual filtering
-            $input_paths | map(
-              . as $path |
-              select($skip_patterns | all(. as $pattern | ($path | startswith($pattern)) | not))
-            ) as $result |
-
-            # Debug what was skipped
-            (if ($input_paths - $result) | length > 0 then
-              "Skipped: " + (($input_paths - $result) | map("  - " + .) | join(","))
-            else
-              "No paths skipped"
-            end) |
-            debug |
-
-            $result
-            ' .github/skip_nf_test.json)
-
-          echo "filtered_paths=${FILTERED}" >> $GITHUB_OUTPUT
-
-      - name: debug
-        run: |
-          echo filtered_paths = ${{ steps.filter.outputs.filtered_paths }}
-
+          nvidia-smi -L
       - name: Run nf-test Action
-        if: ${{steps.filter.outputs.filtered_paths != '[]'}}
-        continue-on-error: ${{ runner.arch == 'ARM64' }}
         uses: ./.github/actions/nf-test-action
         env:
           SENTIEON_ENCRYPTION_KEY: ${{ secrets.SENTIEON_ENCRYPTION_KEY }}
@@ -166,17 +124,18 @@ jobs:
           SENTIEON_LICSRVR_IP: ${{ secrets.SENTIEON_LICSRVR_IP }}
           SENTIEON_AUTH_MECH: "GitHub Actions - token"
         with:
-          profile: ${{ matrix.profile }}${{ runner.arch == 'ARM64' && ',arm64,wave' || '' }}
+          profile: ${{ matrix.profile }},gpu
           shard: ${{ matrix.shard }}
           total_shards: ${{ env.TOTAL_SHARDS }}
-          paths: "${{ join(fromJson(steps.filter.outputs.filtered_paths), ' ') }}"
+          paths: "${{ join(fromJson(needs.nf-test-changes.outputs.paths), ' ') }}"
+          tags: ${{ matrix.tag }}
 
-  confirm-pass-nf-test:
+  confirm-pass-gpu:
     runs-on:
-      - runs-on=${{ github.run_id }}-confirm-pass-nf-test
-      - runner=4cpu-linux-x64
+      - runs-on=${{ github.run_id }}-confirm-pass-gpu
+      - runner=2cpu-linux-x64
       - image=ubuntu22-full-x64
-    needs: [nf-test]
+    needs: [nf-test-gpu]
     if: always()
     steps:
       - name: One or more tests failed
@@ -187,10 +146,6 @@ jobs:
         if: ${{ contains(needs.*.result, 'cancelled') }}
         run: exit 1
 
-      - name: If no tests run, but filtered_paths was not empty and no tests succeeded, fail
-        if: ${{ needs.nf-test.outputs.filtered_paths != '' && !contains(needs.*.result, 'success') }}
-        run: exit 1
-
       - name: All tests ok
         if: ${{ contains(needs.*.result, 'success') }}
         run: exit 0
@@ -198,16 +153,5 @@ jobs:
       - name: debug-print
         if: always()
         run: |
-          echo "::group::DEBUG: `needs` Contents"
-          echo "DEBUG: toJSON(needs) = ${{ toJSON(needs) }}"
-          echo "DEBUG: toJSON(needs.*.result) = ${{ toJSON(needs.*.result) }}"
-          echo "DEBUG: needs.nf-test.outputs.filtered_paths = ${{ needs.nf-test.outputs.filtered_paths }}"
-          echo "::endgroup::"
-
-      - name: Clean Workspace # Purge the workspace in case it's running on a self-hosted runner
-        if: always()
-        run: |
-          ls -la ./
-          rm -rf ./* || true
-          rm -rf ./.??* || true
-          ls -la ./
+          echo "toJSON(needs) = ${{ toJSON(needs) }}"
+          echo "toJSON(needs.*.result) = ${{ toJSON(needs.*.result) }}"
