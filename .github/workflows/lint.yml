@@ -1,0 +1,184 @@
+name: lint
+
+on:
+  pull_request:
+    branches: [main]
+
+# Cancel if a newer run is started
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NFT_VER: "0.9.3"
+  NXF_ANSI_LOG: false
+  NXF_SINGULARITY_CACHEDIR: ${{ github.workspace }}/.singularity
+  NXF_SINGULARITY_LIBRARYDIR: ${{ github.workspace }}/.singularity
+  NXF_VER: "25.04.8"
+
+jobs:
+  # Detect which modules and subworkflows have changed
+  detect-changes:
+    name: Detect changed components
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.changed-modules.outputs.all_changed_files }}
+      subworkflows: ${{ steps.changed-subworkflows.outputs.all_changed_files }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed modules
+        uses: tj-actions/changed-files@v46.0.5
+        id: changed-modules
+        with:
+          dir_names: "true"
+          dir_names_max_depth: 3
+          files: modules/gianglabs/**
+          base: ${{ github.event.pull_request.base.ref || 'origin/main' }}
+
+      - name: Get changed subworkflows
+        uses: tj-actions/changed-files@v46.0.5
+        id: changed-subworkflows
+        with:
+          dir_names: "true"
+          dir_names_max_depth: 3
+          files: subworkflows/gianglabs/**
+          base: ${{ github.event.pull_request.base.ref || 'origin/main' }}
+
+      - name: Debug - Show detected changes
+        run: |
+          echo "=========================================="
+          echo "📦 Changed modules: ${{ steps.changed-modules.outputs.all_changed_files }}"
+          echo "🔧 Changed subworkflows: ${{ steps.changed-subworkflows.outputs.all_changed_files }}"
+          echo "=========================================="
+
+  # Lint changed modules
+  lint-modules:
+    name: Lint modules
+    needs: detect-changes
+    if: needs.detect-changes.outputs.modules != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: prefix-dev/setup-pixi@v0.9.5
+        with:
+          pixi-version: v0.66.0
+
+      - name: Lint modules (nextflow, python, R)
+        run: |
+          echo "=========================================="
+          echo "📦 Linting modules: ${{ needs.detect-changes.outputs.modules }}"
+          echo "=========================================="
+          for module in ${{ needs.detect-changes.outputs.modules }}; do
+            echo ""
+            echo "Linting module: $module"
+            echo "=========================================="
+            
+            # Lint Nextflow files
+            echo "🔧 Linting Nextflow files..."
+            if find "$module" -name "*.nf" -type f | grep -q .; then
+              nextflow lint "$module"
+            else
+              echo "  ℹ️  No Nextflow files found"
+            fi
+            
+            # Lint Python files with ruff
+            echo "🐍 Linting Python files with ruff..."
+            if find "$module" -name "*.py" -type f | grep -q .; then
+              pixi run ruff check "$module"
+            else
+              echo "  ℹ️  No Python files found"
+            fi
+            
+            # Lint R files with lintr
+            echo "📊 Linting R files with lintr..."
+            if find "$module" -name "*.R" -o -name "*.r" | grep -q .; then
+              pixi run Rscript -e "lintr::lint_dir('$module')"
+            else
+              echo "  ℹ️  No R files found"
+            fi
+          done
+
+  # Lint changed subworkflows
+  lint-subworkflows:
+    name: Lint subworkflows
+    needs: detect-changes
+    if: needs.detect-changes.outputs.subworkflows != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: prefix-dev/setup-pixi@v0.9.5
+        with:
+          pixi-version: v0.66.0
+
+      - name: Lint subworkflows (nextflow, python, R)
+        run: |
+          echo "=========================================="
+          echo "🔧 Linting subworkflows: ${{ needs.detect-changes.outputs.subworkflows }}"
+          echo "=========================================="
+          for subworkflow in ${{ needs.detect-changes.outputs.subworkflows }}; do
+            echo ""
+            echo "Linting subworkflow: $subworkflow"
+            echo "=========================================="
+            
+            # Lint Nextflow files
+            echo "🔧 Linting Nextflow files..."
+            if find "$subworkflow" -name "*.nf" -type f | grep -q .; then
+              nextflow lint "$subworkflow"
+            else
+              echo "  ℹ️  No Nextflow files found"
+            fi
+            
+            # Lint Python files with ruff
+            echo "🐍 Linting Python files with ruff..."
+            if find "$subworkflow" -name "*.py" -type f | grep -q .; then
+              pixi run ruff check "$subworkflow"
+            else
+              echo "  ℹ️  No Python files found"
+            fi
+            
+            # Lint R files with lintr
+            echo "📊 Linting R files with lintr..."
+            if find "$subworkflow" -name "*.R" -o -name "*.r" | grep -q .; then
+              pixi run Rscript -e "lintr::lint_dir('$subworkflow')"
+            else
+              echo "  ℹ️  No R files found"
+            fi
+          done
+
+  # Confirm all tests passed
+  confirm-pass:
+    name: Confirm all tests passed
+    runs-on: ubuntu-latest
+    needs: [detect-changes, lint-modules, lint-subworkflows]
+    if: always()
+    steps:
+      - name: Check lint results
+        run: |
+          if [[ "${{ needs.detect-changes.result }}" != "success" ]]; then
+            echo "❌ Detect changes job failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.lint-modules.result }}" == "failure" ]]; then
+            echo "❌ Module linting failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.lint-subworkflows.result }}" == "failure" ]]; then
+            echo "❌ Subworkflow linting failed"
+            exit 1
+          fi
+          
+          echo "✅ All linting checks passed"
