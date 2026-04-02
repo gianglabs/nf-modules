@@ -84,7 +84,7 @@ jobs:
             # Lint Nextflow files
             echo "🔧 Linting Nextflow files..."
             if find "$module" -name "*.nf" -type f | grep -q .; then
-              nextflow lint "$module"
+              pixi run nextflow lint "$module"
             else
               echo "  ℹ️  No Nextflow files found"
             fi
@@ -135,7 +135,7 @@ jobs:
             # Lint Nextflow files
             echo "🔧 Linting Nextflow files..."
             if find "$subworkflow" -name "*.nf" -type f | grep -q .; then
-              nextflow lint "$subworkflow"
+              pixi run nextflow lint "$subworkflow"
             else
               echo "  ℹ️  No Nextflow files found"
             fi
