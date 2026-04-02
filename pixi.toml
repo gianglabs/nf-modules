@@ -8,6 +8,7 @@ version = "0.1.0"
 
 [dependencies]
 python = "3.11.*"
+nf-test = ">=0.9.5,<0.10"
 
 [pypi-dependencies]
 nf-core = ">=3.5.2, <4"

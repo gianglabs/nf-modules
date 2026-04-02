@@ -54,15 +54,7 @@ runs:
         mkdir -p $NXF_SINGULARITY_CACHEDIR
         mkdir -p $NXF_SINGULARITY_LIBRARYDIR
 
-    - name: Set up Conda
-      if: ${{contains(inputs.profile, 'conda')}}
-      uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3
-      with:
-        auto-update-conda: true
-        conda-solver: libmamba
-        conda-remove-defaults: true
-
-    # Set up secrets
+    # Set up secretsconda
     - name: Set up Nextflow secrets
       if: env.SENTIEON_ENCRYPTION_KEY != '' && env.SENTIEON_LICENSE_MESSAGE != ''
       shell: bash
@@ -86,7 +78,6 @@ runs:
           --tap=test.tap \
           --verbose \
           --ci \
-          --shard ${{ inputs.shard }}/${{ inputs.total_shards }} \
           --filter process,workflow \
           ${{ inputs.paths }}
 
