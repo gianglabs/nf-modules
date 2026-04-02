@@ -22,7 +22,7 @@ If you'd like to write some code for nf-core/modules, the standard workflow is a
 2. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) the [nf-core/modules repository](https://github.com/nf-core/modules) to your GitHub account
 3. When adding a module file, follow the [guidelines](https://github.com/nf-core/modules#adding-a-new-module-file)
 4. Ensure that [tests are working locally](https://github.com/nf-core/modules#running-tests-locally)
-5. Submit a Pull Request against the `master` branch and wait for the code to be reviewed and merged
+5. Submit a Pull Request against the `main` branch and wait for the code to be reviewed and merged
 
 If you're not used to this workflow with git, you can start with some [docs from GitHub](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests) or even their [excellent `git` resources](https://try.github.io/).
 

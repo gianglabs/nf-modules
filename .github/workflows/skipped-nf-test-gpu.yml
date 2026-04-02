@@ -7,12 +7,12 @@ on:
     paths:
       - "**/meta.yml"
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - "**/meta.yml"
   merge_group:
     types: [checks_requested]
-    branches: [master]
+    branches: [main]
 
 jobs:
   check-files:
