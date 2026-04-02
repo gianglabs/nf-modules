@@ -1,0 +1,49 @@
+name: Detect changed components
+
+on:
+  workflow_call:
+    outputs:
+      modules:
+        description: "Space-separated list of changed modules"
+        value: ${{ jobs.detect-changes.outputs.modules }}
+      subworkflows:
+        description: "Space-separated list of changed subworkflows"
+        value: ${{ jobs.detect-changes.outputs.subworkflows }}
+
+jobs:
+  detect-changes:
+    name: Detect changed components
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.changed-modules.outputs.all_changed_files }}
+      subworkflows: ${{ steps.changed-subworkflows.outputs.all_changed_files }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed modules
+        uses: tj-actions/changed-files@v46.0.5
+        id: changed-modules
+        with:
+          dir_names: "true"
+          dir_names_max_depth: 3
+          files: modules/gianglabs/**
+          base: ${{ github.event.pull_request.base.ref || 'origin/main' }}
+
+      - name: Get changed subworkflows
+        uses: tj-actions/changed-files@v46.0.5
+        id: changed-subworkflows
+        with:
+          dir_names: "true"
+          dir_names_max_depth: 3
+          files: subworkflows/gianglabs/**
+          base: ${{ github.event.pull_request.base.ref || 'origin/main' }}
+
+      - name: Debug - Show detected changes
+        run: |
+          echo "=========================================="
+          echo "📦 Changed modules: ${{ steps.changed-modules.outputs.all_changed_files }}"
+          echo "🔧 Changed subworkflows: ${{ steps.changed-subworkflows.outputs.all_changed_files }}"
+          echo "=========================================="
