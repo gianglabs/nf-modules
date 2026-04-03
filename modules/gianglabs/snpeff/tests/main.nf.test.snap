@@ -1,0 +1,28 @@
+{
+    "homo_sapiens - vcf stub": {
+        "content": [
+            {
+                "genes_txt": [
+                    "test.genes.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "report": [
+                    "test.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "summary_html": [
+                    "test.html:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "vcf": [
+                    "test.ann.vcf:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ],
+                "versions": [
+                    "versions.yml:md5,4ab05b50ef91b32de9d889c7a4b69819"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:45:00.000000000",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

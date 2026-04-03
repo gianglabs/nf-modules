@@ -1,0 +1,5 @@
+bwa/mem2:
+  - modules
+  - modules_gianglabs
+  - bwa
+  - bwa/mem2

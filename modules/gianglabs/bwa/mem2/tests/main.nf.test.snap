@@ -1,0 +1,25 @@
+{
+    "homo_sapiens - paired_end": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    
+                ],
+                "bam": [
+                    
+                ],
+                "versions": [
+                    
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:34:57.297951102",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

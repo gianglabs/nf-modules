@@ -1,0 +1,85 @@
+{
+    "homo_sapiens - paired_end [fastq]": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "read_group": "test_L001",
+                            "single_end": false
+                        },
+                        [
+                            "test_L001_trimmed_1.fastq.gz:md5,7e3f58c0d15d237b2c1352afe3852405",
+                            "test_L001_trimmed_2.fastq.gz:md5,b36c054dd2d32092cdee385a716fb6e5"
+                        ]
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test",
+                            "read_group": "test_L001",
+                            "single_end": false
+                        },
+                        "test_L001_fastp.html:md5,9f7d05097ca11b9a245490992de676c8"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test",
+                            "read_group": "test_L001",
+                            "single_end": false
+                        },
+                        "test_L001_fastp.json:md5,1fc795fe0523c267edeea9a33e864bb5"
+                    ]
+                ],
+                "3": [
+                    "versions.yml:md5,400b2e7bc564203f842ae8d1c223d287"
+                ],
+                "html": [
+                    [
+                        {
+                            "id": "test",
+                            "read_group": "test_L001",
+                            "single_end": false
+                        },
+                        "test_L001_fastp.html:md5,9f7d05097ca11b9a245490992de676c8"
+                    ]
+                ],
+                "json": [
+                    [
+                        {
+                            "id": "test",
+                            "read_group": "test_L001",
+                            "single_end": false
+                        },
+                        "test_L001_fastp.json:md5,1fc795fe0523c267edeea9a33e864bb5"
+                    ]
+                ],
+                "reads": [
+                    [
+                        {
+                            "id": "test",
+                            "read_group": "test_L001",
+                            "single_end": false
+                        },
+                        [
+                            "test_L001_trimmed_1.fastq.gz:md5,7e3f58c0d15d237b2c1352afe3852405",
+                            "test_L001_trimmed_2.fastq.gz:md5,b36c054dd2d32092cdee385a716fb6e5"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,400b2e7bc564203f842ae8d1c223d287"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:36:56.117504146",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

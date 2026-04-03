@@ -1,0 +1,25 @@
+{
+    "homo_sapiens - vcf - annotation": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    
+                ],
+                "annotated_vcf": [
+                    
+                ],
+                "versions": [
+                    
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T02:15:07.314239606",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}

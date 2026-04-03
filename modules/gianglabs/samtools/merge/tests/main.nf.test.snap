@@ -1,0 +1,83 @@
+{
+    "homo_sapiens - bam merge single": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.bam:md5,86899ddde64add05e22a746bde6ec269"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.bam.bai:md5,cc365781854730f470c8d31bcb4b1fab"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.cram:md5,e72ca3eccd82f98a4375d926952b07fd"
+                    ]
+                ],
+                "3": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.cram.crai:md5,78a5f7565207e72cd6d357b305f78e65"
+                    ]
+                ],
+                "4": [
+                    "versions.yml:md5,d453ef64a05ba1a30a9ab64d89b2b2ac"
+                ],
+                "bai": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.bam.bai:md5,cc365781854730f470c8d31bcb4b1fab"
+                    ]
+                ],
+                "bam": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.bam:md5,86899ddde64add05e22a746bde6ec269"
+                    ]
+                ],
+                "crai": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.cram.crai:md5,78a5f7565207e72cd6d357b305f78e65"
+                    ]
+                ],
+                "cram": [
+                    [
+                        {
+                            "id": "test"
+                        },
+                        "test_merged.cram:md5,e72ca3eccd82f98a4375d926952b07fd"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d453ef64a05ba1a30a9ab64d89b2b2ac"
+                ]
+            }
+        ],
+        "timestamp": "2026-04-03T14:46:21.854810337",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "25.10.4"
+        }
+    }
+}
