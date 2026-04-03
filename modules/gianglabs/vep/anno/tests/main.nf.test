@@ -18,8 +18,8 @@ nextflow_process {
                     [ id: 'test' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz', checkIfExists: true)
                 ])
-                input[1] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/caches/vep_cache', checkIfExists: true))
-                input[2] = Channel.of(104)
+                input[1] = Channel.of(file('s3://annotation-cache/vep_cache/115_GRCh38/homo_sapiens/115_GRCh38/22', checkIfExists: true))
+                input[2] = Channel.of(115)
                 input[3] = Channel.of('GRCh38')
                 input[4] = Channel.of('homo_sapiens')
                 input[5] = Channel.of(file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta', checkIfExists: true))
@@ -29,9 +29,14 @@ nextflow_process {
 
         then {
             assertAll (
-                { assert process.success }
+                { assert process.success },
+                // Exclude HTML output as it contains timestamps
+                { assert snapshot(
+                    process.out.vcf,
+                    process.out.tbi,
+                    process.out.versions
+                ).match() }
             )
         }
     }
 }
-o

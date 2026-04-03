@@ -21,9 +21,9 @@ nextflow_workflow {
                     [ id: 'test', sample: 'test' ],
                     file(params.modules_testdata_base_path + 'genomics/homo_sapiens/vcf/test_variants.vcf.gz.tbi', checkIfExists: true)
                 ])
-                input[2] = params.modules_testdata_base_path + 'genomics/homo_sapiens/caches/snpeff_hg38'
-                input[3] = params.modules_testdata_base_path + 'genomics/homo_sapiens/caches/vep_cache'
-                input[4] = '104'
+                input[2] = 's3://annotation-cache/snpeff_cache/GRCh38.99'
+                input[3] = 's3://annotation-cache/vep_cache/115_GRCh38/homo_sapiens/115_GRCh38/22'
+                input[4] = '115'
                 input[5] = 'GRCh38'
                 input[6] = 'homo_sapiens'
                 input[7] = file(params.modules_testdata_base_path + 'genomics/homo_sapiens/reference/chr22.fasta', checkIfExists: true)
