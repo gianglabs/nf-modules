@@ -1,6 +1,7 @@
+include { BEDTOOLS_GENOMECOV } from '../../../modules/gianglabs/bedtools/genomecov/main'
 include { BCFTOOLS_STATS } from '../../../modules/gianglabs/bcftools/stats/main'
 include { BCFTOOLS_QUERY } from '../../../modules/gianglabs/bcftools/query/main'
-include { BEDTOOLS_GENOMECOV } from '../../../modules/gianglabs/bedtools/genomecov/main'
+
 
 workflow VARIANT_ALIGNMENT_QUALITY_CONTROL {
     take:
