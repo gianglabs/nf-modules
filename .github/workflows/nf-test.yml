@@ -3,8 +3,6 @@ name: nf-test
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
 
 # Cancel if a newer run is started
 concurrency:
