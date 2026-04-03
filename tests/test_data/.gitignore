@@ -1,14 +1,4 @@
 # Ignore large test data files but keep directory structure
-*.fastq.gz
-*.bam
-*.bai
-*.cram
-*.crai
-*.fasta
-*.fai
-*.dict
-*.vcf.gz
-*.vcf.gz.tbi
 
 # Keep README
 !README.md
