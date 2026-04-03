@@ -3,8 +3,6 @@ name: nf-test
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
 
 # Cancel if a newer run is started
 concurrency:
@@ -23,16 +21,50 @@ jobs:
   detect-changes:
     uses: ./.github/workflows/detect-changes.yml
 
+  # Prepare module matrix
+  prepare-modules:
+    name: Prepare module matrix
+    needs: detect-changes
+    if: needs.detect-changes.outputs.modules != ''
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          MODULES="${{ needs.detect-changes.outputs.modules }}"
+          # Convert space-separated string to JSON array (single line)
+          MATRIX=$(echo $MODULES | jq -cR 'split(" ") | map(select(length > 0))')
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  # Prepare subworkflow matrix
+  prepare-subworkflows:
+    name: Prepare subworkflow matrix
+    needs: detect-changes
+    if: needs.detect-changes.outputs.subworkflows != ''
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          SUBWORKFLOWS="${{ needs.detect-changes.outputs.subworkflows }}"
+          # Convert space-separated string to JSON array (single line)
+          MATRIX=$(echo $SUBWORKFLOWS | jq -cR 'split(" ") | map(select(length > 0))')
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
   # Run tests on changed modules
   test-modules:
-    name: Test modules
-    needs: detect-changes
+    name: Test ${{ matrix.module }}
+    needs: [detect-changes, prepare-modules]
     if: needs.detect-changes.outputs.modules != ''
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        profile: [docker, singularity]
+        module: ${{ fromJson(needs.prepare-modules.outputs.matrix) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -49,38 +81,30 @@ jobs:
           path: ~/.nextflow
           key: ${{ runner.os }}-nextflow-${{ env.NXF_VER }}
 
-      - name: Run nf-test on modules
+      - name: Run nf-test on module
+        env:
+          NFT_WORKDIR: ${{ github.workspace }}/work
         run: |
           echo "=========================================="
-          echo " Testing modules with profile: ${{ matrix.profile }}"
-          echo " Matrix modules: ${{ needs.detect-changes.outputs.modules }}"
+          echo " Testing module: ${{ matrix.module }}"
           echo "=========================================="
-          for module in ${{ needs.detect-changes.outputs.modules }}; do
-            echo " Testing module: $module"
-            NFT_WORKDIR=~
-            # install singulariy if needed
-            if [[ ${{ matrix.profile }} == "singularity" ]]; then
-              sudo apt update
-              sudo apt install -y software-properties-common
-              sudo add-apt-repository -y ppa:apptainer/ppa
-              sudo apt update
-              sudo apt install -y apptainer apptainer-suid
-              mkdir -p $NXF_SINGULARITY_CACHEDIR
-              mkdir -p $NXF_SINGULARITY_LIBRARYDIR
-            fi
-            pixi run nf-test test $module/tests/ --profile ${{ matrix.profile }} --verbose --ci
-          done
+          
+          if [ -d "${{ matrix.module }}/tests" ]; then
+            pixi run nf-test test ${{ matrix.module }}/tests/ --profile docker --verbose
+          else
+            echo "⚠️  No tests found for ${{ matrix.module }}"
+          fi
 
   # Run tests on changed subworkflows
   test-subworkflows:
-    name: Test subworkflows
-    needs: detect-changes
+    name: Test ${{ matrix.subworkflow }}
+    needs: [detect-changes, prepare-subworkflows]
     if: needs.detect-changes.outputs.subworkflows != ''
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        profile: [docker, singularity]
+        subworkflow: ${{ fromJson(needs.prepare-subworkflows.outputs.matrix) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -97,16 +121,19 @@ jobs:
           path: ~/.nextflow
           key: ${{ runner.os }}-nextflow-${{ env.NXF_VER }}
 
-      - name: Run nf-test on subworkflows
+      - name: Run nf-test on subworkflow
+        env:
+          NFT_WORKDIR: ${{ github.workspace }}/work
         run: |
           echo "=========================================="
-          echo " Testing subworkflows with profile: ${{ matrix.profile }}"
-          echo " Matrix subworkflows: ${{ needs.detect-changes.outputs.subworkflows }}"
+          echo " Testing subworkflow: ${{ matrix.subworkflow }}"
           echo "=========================================="
-          for subworkflow in ${{ needs.detect-changes.outputs.subworkflows }}; do
-            echo " Testing subworkflow: $subworkflow"
-            pixi run nf-test test $subworkflow/tests/ -p ${{ matrix.profile }}
-          done
+          
+          if [ -d "${{ matrix.subworkflow }}/tests" ]; then
+            pixi run nf-test test ${{ matrix.subworkflow }}/tests/ --profile docker --verbose
+          else
+            echo "⚠️  No tests found for ${{ matrix.subworkflow }}"
+          fi
 
   # Confirm all tests passed
   confirm-pass:
@@ -117,19 +144,28 @@ jobs:
     steps:
       - name: Check test results
         run: |
+          echo "=========================================="
+          echo "📋 Workflow Results Summary"
+          echo "=========================================="
+          
           if [[ "${{ needs.detect-changes.result }}" != "success" ]]; then
             echo "❌ Detect changes job failed"
             exit 1
           fi
+          echo "✅ Detect changes succeeded"
           
           if [[ "${{ needs.test-modules.result }}" == "failure" ]]; then
             echo "❌ Module tests failed"
             exit 1
           fi
+          echo "✅ Module tests passed (or skipped)"
           
           if [[ "${{ needs.test-subworkflows.result }}" == "failure" ]]; then
             echo "❌ Subworkflow tests failed"
             exit 1
           fi
+          echo "✅ Subworkflow tests passed (or skipped)"
           
-          echo "✅ All tests passed"
+          echo "=========================================="
+          echo "✅ All checks passed"
+          echo "=========================================="

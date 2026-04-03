@@ -1,0 +1,7 @@
+# Ignore large test data files but keep directory structure
+
+# Keep README
+!README.md
+
+# Keep directory structure markers
+!.gitkeep
