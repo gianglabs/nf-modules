@@ -1,7 +1,7 @@
 process GATK_COLLECTMETRICS {
     tag "${meta.id}"
     label 'process_medium'
-    container 'broadinstitute/gatk:4.4.0.0'
+    container 'docker.io/broadinstitute/gatk:4.4.0.0'
 
     input:
     tuple val(meta), path(bam), path(bai)

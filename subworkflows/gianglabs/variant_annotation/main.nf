@@ -9,8 +9,8 @@ nextflow.enable.dsl = 2
 
 // Include modules
 include { BCFTOOLS_NORM } from '../../../modules/gianglabs/bcftools/norm/main'
-include { SNPEFF } from '../../../modules/gianglabs/snpeff/main'
-include { VEP } from '../../../modules/gianglabs/vep/main'
+include { SNPEFF } from '../../../modules/gianglabs/snpeff/anno/main'
+include { VEP } from '../../../modules/gianglabs/vep/anno/main'
 
 
 workflow VARIANT_ANNOTATION {

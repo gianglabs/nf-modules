@@ -42,21 +42,21 @@ process VEP {
 
     tabix -p vcf  ${meta.id}.vcf.gz
 
-     cat <<-END_VERSIONS > versions.yml
-     "${task.process}":
-         ensembl-vep: \$(vep --version 2>&1 | grep -oP 'ensembl-vep [0-9.]+' | sed 's/ensembl-vep //' || echo "104.3")
-     END_VERSIONS
-     """
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        ensembl-vep: \$(vep --version 2>&1 | grep -oP 'ensembl-vep [0-9.]+' | sed 's/ensembl-vep //' || echo "104.3")
+    END_VERSIONS
+    """
 
-     stub:
-     """
-     touch ${meta.id}.vcf.gz
-     touch ${meta.id}.vcf.gz.tbi
-     touch ${meta.id}.html
-     
-     cat <<-END_VERSIONS > versions.yml
-     "${task.process}":
-         ensembl-vep: 104.3
-     END_VERSIONS
-     """
+    stub:
+    """
+    touch ${meta.id}.vcf.gz
+    touch ${meta.id}.vcf.gz.tbi
+    touch ${meta.id}.html
+    
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        ensembl-vep: 104.3
+    END_VERSIONS
+    """
 }
