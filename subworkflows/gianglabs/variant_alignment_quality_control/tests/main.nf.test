@@ -24,11 +24,11 @@ nextflow_workflow {
                 ])
                 input[2] = Channel.of([
                     [ id: 'test', sample: 'test' ],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/test_sorted.bam', checkIfExists: true)
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam', checkIfExists: true)
                 ])
                 input[3] = Channel.of([
                     [ id: 'test', sample: 'test' ],
-                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/test_sorted.bam.bai', checkIfExists: true)
+                    file(params.modules_testdata_base_path + 'genomics/homo_sapiens/bam/processed.bam.bai', checkIfExists: true)
                 ])
                 """
             }
