@@ -19,51 +19,51 @@ env:
   NXF_VER: "25.04.8"
 
 jobs:
-  # Call reusable workflow to detect changes
-  detect-changes:
-    uses: ./.github/workflows/detect-changes.yml
+  # # Call reusable workflow to detect changes
+  # detect-changes:
+  #   uses: ./.github/workflows/detect-changes.yml
 
-  # Prepare module matrix
-  prepare-modules:
-    name: Prepare module matrix
-    needs: detect-changes
-    if: needs.detect-changes.outputs.modules != ''
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Set matrix
-        id: set-matrix
-        run: |
-          MODULES="${{ needs.detect-changes.outputs.modules }}"
-          # Convert space-separated string to JSON array (single line)
-          MATRIX=$(echo $MODULES | jq -cR 'split(" ") | map(select(length > 0))')
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
-          echo "Matrix: $MATRIX"
+  # # Prepare module matrix
+  # prepare-modules:
+  #   name: Prepare module matrix
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.modules != ''
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     matrix: ${{ steps.set-matrix.outputs.matrix }}
+  #   steps:
+  #     - name: Set matrix
+  #       id: set-matrix
+  #       run: |
+  #         MODULES="${{ needs.detect-changes.outputs.modules }}"
+  #         # Convert space-separated string to JSON array (single line)
+  #         MATRIX=$(echo $MODULES | jq -cR 'split(" ") | map(select(length > 0))')
+  #         echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+  #         echo "Matrix: $MATRIX"
 
-  # Prepare subworkflow matrix
-  prepare-subworkflows:
-    name: Prepare subworkflow matrix
-    needs: detect-changes
-    if: needs.detect-changes.outputs.subworkflows != ''
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Set matrix
-        id: set-matrix
-        run: |
-          SUBWORKFLOWS="${{ needs.detect-changes.outputs.subworkflows }}"
-          # Convert space-separated string to JSON array (single line)
-          MATRIX=$(echo $SUBWORKFLOWS | jq -cR 'split(" ") | map(select(length > 0))')
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
-          echo "Matrix: $MATRIX"
+  # # Prepare subworkflow matrix
+  # prepare-subworkflows:
+  #   name: Prepare subworkflow matrix
+  #   needs: detect-changes
+  #   if: needs.detect-changes.outputs.subworkflows != ''
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     matrix: ${{ steps.set-matrix.outputs.matrix }}
+  #   steps:
+  #     - name: Set matrix
+  #       id: set-matrix
+  #       run: |
+  #         SUBWORKFLOWS="${{ needs.detect-changes.outputs.subworkflows }}"
+  #         # Convert space-separated string to JSON array (single line)
+  #         MATRIX=$(echo $SUBWORKFLOWS | jq -cR 'split(" ") | map(select(length > 0))')
+  #         echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+  #         echo "Matrix: $MATRIX"
 
   # Run tests on changed modules
   test-modules:
-    name: Test ${{ matrix.module }}
-    needs: [detect-changes, prepare-modules]
-    if: needs.detect-changes.outputs.modules != ''
+    name: Test singularity
+    # needs: [detect-changes, prepare-modules]
+    # if: needs.detect-changes.outputs.modules != ''
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

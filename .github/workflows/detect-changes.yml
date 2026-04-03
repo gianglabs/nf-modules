@@ -24,32 +24,22 @@ jobs:
           fetch-depth: 0
 
       - name: Get changed modules
+        uses: tj-actions/changed-files@v46.0.5
         id: changed-modules
-        run: |
-          BASE_REF="${{ github.event.pull_request.base.ref || 'origin/main' }}"
-          # For local testing with act, use main if origin/main doesn't exist
-          if ! git rev-parse --verify $BASE_REF >/dev/null 2>&1; then
-            BASE_REF="main"
-          fi
-          
-          echo "Comparing against: $BASE_REF"
-          CHANGED_MODULES=$(git diff --name-only $BASE_REF... -- modules/gianglabs/ | cut -d/ -f1-3 | sort -u | tr '\n' ' ' || echo "")
-          echo "all_changed_files=$CHANGED_MODULES" >> $GITHUB_OUTPUT
-          echo "Changed modules: $CHANGED_MODULES"
+        with:
+          dir_names: "true"
+          dir_names_max_depth: 4
+          files: modules/gianglabs/**
+          base: ${{ github.event.pull_request.base.ref || 'origin/main' }}
 
       - name: Get changed subworkflows
+        uses: tj-actions/changed-files@v46.0.5
         id: changed-subworkflows
-        run: |
-          BASE_REF="${{ github.event.pull_request.base.ref || 'origin/main' }}"
-          # For local testing with act, use main if origin/main doesn't exist
-          if ! git rev-parse --verify $BASE_REF >/dev/null 2>&1; then
-            BASE_REF="main"
-          fi
-          
-          echo "Comparing against: $BASE_REF"
-          CHANGED_SUBWORKFLOWS=$(git diff --name-only $BASE_REF... -- subworkflows/gianglabs/ | cut -d/ -f1-3 | sort -u | tr '\n' ' ' || echo "")
-          echo "all_changed_files=$CHANGED_SUBWORKFLOWS" >> $GITHUB_OUTPUT
-          echo "Changed subworkflows: $CHANGED_SUBWORKFLOWS"
+        with:
+          dir_names: "true"
+          dir_names_max_depth: 3
+          files: subworkflows/gianglabs/**
+          base: ${{ github.event.pull_request.base.ref || 'origin/main' }}
 
       - name: Debug - Show detected changes
         run: |
