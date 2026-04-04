@@ -1,4 +1,4 @@
-process SNPEFF {
+process SNPEFF_ANNOTATE {
     tag "${meta.id}"
     label 'process_medium'
     container 'quay.io/biocontainers/snpeff:5.4.0c--hdfd78af_0'

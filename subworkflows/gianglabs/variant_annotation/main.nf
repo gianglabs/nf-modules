@@ -9,8 +9,8 @@ nextflow.enable.dsl = 2
 
 // Include modules
 include { BCFTOOLS_NORM } from '../../../modules/gianglabs/bcftools/norm/main'
-include { SNPEFF } from '../../../modules/gianglabs/snpeff/anno/main'
-include { VEP } from '../../../modules/gianglabs/vep/anno/main'
+include { SNPEFF_ANNOTATE } from '../../../modules/gianglabs/snpeff/annotate/main'
+include { VEP_ANNOTATE } from '../../../modules/gianglabs/vep/annotate/main'
 
 
 workflow VARIANT_ANNOTATION {
@@ -35,23 +35,23 @@ workflow VARIANT_ANNOTATION {
     )
     ch_versions = ch_versions.mix(BCFTOOLS_NORM.out.versions)
 
-    SNPEFF(
+    SNPEFF_ANNOTATE(
         BCFTOOLS_NORM.out.vcf.join(BCFTOOLS_NORM.out.tbi),
         ch_snpeff_cache_db,
     )
-    ch_versions = ch_versions.mix(SNPEFF.out.versions)
+    ch_versions = ch_versions.mix(SNPEFF_ANNOTATE.out.versions)
 
-    VEP(
-        SNPEFF.out.vcf,
+    VEP_ANNOTATE(
+        SNPEFF_ANNOTATE.out.vcf,
         ch_vep_cache_db,
         vep_cache_version,
         vep_genome,
         vep_species,
         fasta,
     )
-    ch_versions = ch_versions.mix(VEP.out.versions)
+    ch_versions = ch_versions.mix(VEP_ANNOTATE.out.versions)
 
     emit:
-    annotated_vcf = VEP.out.vcf // channel: [ val(meta), path(annotated_vcf), path(annotated_tbi) ]
+    annotated_vcf = VEP_ANNOTATE.out.vcf // channel: [ val(meta), path(annotated_vcf), path(annotated_tbi) ]
     versions = ch_versions
 }
