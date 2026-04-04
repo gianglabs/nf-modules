@@ -2,7 +2,7 @@ nextflow_process {
 
     name "Test Process VEP"
     script "../main.nf"
-    process "VEP"
+    process "VEP_ANNOTATE"
 
     tag "modules"
     tag "modules_gianglabs"

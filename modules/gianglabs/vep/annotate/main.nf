@@ -1,4 +1,4 @@
-process VEP {
+process VEP_ANNOTATE {
     tag "${meta.id}"
     label 'process_medium'
     container 'community.wave.seqera.io/library/ensembl-vep_perl-math-cdf:1e13f65f931a6954'

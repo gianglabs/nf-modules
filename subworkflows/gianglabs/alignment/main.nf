@@ -7,7 +7,7 @@
 */
 
 
-include { FASTP } from '../../../modules/gianglabs/fastp/trim/main'
+include { FASTP_TRIM } from '../../../modules/gianglabs/fastp/trim/main'
 include { BWAMEM2_INDEX } from '../../../modules/gianglabs/bwa/index/main'
 include { BWA_MEM2 } from '../../../modules/gianglabs/bwa/mem2/main'
 include { SAMTOOLS_SORT } from '../../../modules/gianglabs/samtools/sort/main'
@@ -41,16 +41,16 @@ workflow ALIGNMENT {
     //
     // STEP 1: Adapter Trimming, Quality Filtering, and QC with fastp
     //
-    FASTP(
+    FASTP_TRIM(
         reads_ch
     )
-    ch_versions = ch_versions.mix(FASTP.out.versions)
+    ch_versions = ch_versions.mix(FASTP_TRIM.out.versions)
 
     //
     // STEP 2: Read Alignment with BWA-MEM2
     //
     BWA_MEM2(
-        FASTP.out.reads,
+        FASTP_TRIM.out.reads,
         ref_fasta,
         ref_fai,
         ref_dict,
