@@ -2,7 +2,7 @@ nextflow_process {
 
     name "Test Process SNPEFF"
     script "../main.nf"
-    process "SNPEFF"
+    process "SNPEFF_ANNOTATE"
 
     tag "modules"
     tag "modules_gianglabs"
