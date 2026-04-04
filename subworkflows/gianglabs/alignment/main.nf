@@ -8,8 +8,8 @@
 
 
 include { FASTP_TRIM } from '../../../modules/gianglabs/fastp/trim/main'
-include { BWAMEM2_INDEX } from '../../../modules/gianglabs/bwa/index/main'
-include { BWA_MEM2 } from '../../../modules/gianglabs/bwa/mem2/main'
+include { BWAMEM2_INDEX } from '../../../modules/gianglabs/bwamem2/index/main'
+include { BWAMEM2_MEM2 } from '../../../modules/gianglabs/bwamem2/mem2/main'
 include { SAMTOOLS_SORT } from '../../../modules/gianglabs/samtools/sort/main'
 include { SAMTOOLS_MERGE } from '../../../modules/gianglabs/samtools/merge/main'
 
@@ -49,20 +49,20 @@ workflow ALIGNMENT {
     //
     // STEP 2: Read Alignment with BWA-MEM2
     //
-    BWA_MEM2(
+    BWAMEM2_MEM2(
         FASTP_TRIM.out.reads,
         ref_fasta,
         ref_fai,
         ref_dict,
         bwa2_index_ch,
     )
-    ch_versions = ch_versions.mix(BWA_MEM2.out.versions)
+    ch_versions = ch_versions.mix(BWAMEM2_MEM2.out.versions)
 
     //
     // STEP 3: Sort BAM file
     //
     SAMTOOLS_SORT(
-        BWA_MEM2.out.bam
+        BWAMEM2_MEM2.out.bam
     )
     ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
 
