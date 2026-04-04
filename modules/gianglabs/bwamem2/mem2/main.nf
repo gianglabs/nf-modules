@@ -1,4 +1,4 @@
-process BWA_MEM2 {
+process BWAMEM2_MEM2 {
     tag "${meta.id}"
     label 'process_high'
     container "community.wave.seqera.io/library/bwa-mem2_htslib_samtools:e1f420694f8e42bd"
