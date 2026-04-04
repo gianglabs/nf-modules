@@ -2,7 +2,7 @@ nextflow_process {
 
     name "Test Process FASTP_TRIM"
     script "../main.nf"
-    process "FASTP"
+    process "FASTP_TRIM"
 
     tag "modules"
     tag "modules_gianglabs"
